@@ -76,15 +76,15 @@ nrow(fit.small2$frame)
 # Creates confusion matrix for test data set 
 cm <- confusionMatrix(table(pred=predict(fit.small2, bank.test, type="class"),actual = bank.test$y), positive = 'yes')
 cm
-# Type 1 error alpha
-alpha1 <-  (1-cm$byClass["Specificity"][[1]])
+# False psoitive rate
+FPR <-  (1-cm$byClass["Specificity"][[1]])
 
-# Type 2 error beta
-beta1 <-  (1-cm$byClass["Sensitivity"][[1]])
+# False negative rate
+FNR <-  (1-cm$byClass["Sensitivity"][[1]])
 
 # Expected profit 
 # 5200(TPR)-8700(FPR)
-Exp_Profit <- 5200 - 5200*(beta1)-8700*(alpha1) 
+Exp_Profit <- 5200 - 5200*(FNR)-8700*(FPR) 
 Exp_Profit
 
 
@@ -138,13 +138,13 @@ nrow(fit.smallBal$frame)
 cm2 = confusionMatrix(table(pred=predict(fit.smallBal, bank.test, type="class"),
                                   actual = bank.test$y), positive = 'yes')
 cm2
-# Type 1 error
-alpha2 <- (1-cm2$byClass["Specificity"][[1]])
+# False positive rate
+FPR2 <- (1-cm2$byClass["Specificity"][[1]])
 
-# Type 2 error
-Beta2 <-  (1-cm2$byClass["Sensitivity"][[1]])
+# False negative rate
+FNR2 <-  (1-cm2$byClass["Sensitivity"][[1]])
 
-Exp_Profit2 <- 5200 -5200*(Beta2)-8700*(alpha2) 
+Exp_Profit2 <- 5200 -5200*(FNR2)-8700*(FPR2)
 Exp_Profit2  
 
 
@@ -170,26 +170,26 @@ performance(Ad.pred.score, "auc")@y.values
 
 cm3 = confusionMatrix(table(pred=predict(fit.smallBal, b.bal, type="class"),
                            actual = b.bal$y), positive='yes')
-
+# Creating best cutoff                          
 Ad.cost = performance(Ad.pred.score, measure="cost", 
                          cost.fn=5200, cost.fp=8700)
 
 cutoff.best = Ad.cost@x.values[[1]][which.min(Ad.cost@y.values[[1]])]
 
-Ad.pred.test = predict(fit.smallBal, b.bal, type="prob")
+Ad.pred.test = predict(fit.smallBal, bank.test, type="prob")
 
-Ad.pred.test.cutoff = 
-    ifelse(Ad.pred.test[,2] > cutoff.best,'pos','neg') 
+
+Ad.pred.test.cutoff = ifelse(Ad.pred.test[,2] <= cutoff.best,'no','yes') 
 
 cm4 = confusionMatrix(table(pred=Ad.pred.test.cutoff,
-                           actual = b.bal$y), positive='yes')
- # Type 1 error
-alpha4 <- (1-cm4$byClass["Specificity"][[1]])
+                            actual = bank.test$y), positive = 'yes')
+ # False positive rate
+FPR4 <- (1-cm4$byClass["Specificity"][[1]])
 
-# Type 2 error
-Beta4 <-  (1-cm4$byClass["Sensitivity"][[1]])
+# False negative rate
+FNR4 <-  (1-cm4$byClass["Sensitivity"][[1]])
 
-Exp_Profit4 <- 5200 -5200*(Beta4)-8700*(alpha4) 
+Exp_Profit4 <- 5200 -5200*(FNR4)-8700*(FPR4) 
 Exp_Profit4                            
                            
 # Model analysis
